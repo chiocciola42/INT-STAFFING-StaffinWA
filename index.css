@@ -321,3 +321,10 @@ a[class*="border-outline"]:not([class*="bg-primary"]):not([class*="bg-error-cont
   scrollbar-width: thin;
   scrollbar-color: rgba(6, 65, 74, 0.2) transparent;
 }
+
+/* PWA: su dispositivi con notch (iOS, viewport-fit=cover) evita che il contenuto finisca
+   sotto l'area non sicura in orizzontale. Vale 0 su tutti gli altri schermi. */
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
