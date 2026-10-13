@@ -132,6 +132,15 @@ export async function ensureDbTablesExist(db: VercelPool) {
 
     // 8. Recruitment & Operations
     await db.sql`CREATE TABLE IF NOT EXISTS resource_requests ( id UUID PRIMARY KEY, request_code VARCHAR(50), project_id UUID REFERENCES projects(id) ON DELETE CASCADE, role_id UUID REFERENCES roles(id) ON DELETE CASCADE, requestor_id UUID REFERENCES resources(id) ON DELETE SET NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, commitment_percentage INT NOT NULL, is_urgent BOOLEAN DEFAULT FALSE, is_long_term BOOLEAN DEFAULT FALSE, is_tech_request BOOLEAN DEFAULT FALSE, is_osr_open BOOLEAN DEFAULT FALSE, osr_number VARCHAR(50), notes TEXT, status VARCHAR(50) NOT NULL, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, version INT DEFAULT 1 );`;
+    // MIGRATION: allinea DB esistenti creati con versioni precedenti della tabella
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS request_code VARCHAR(50);`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS requestor_id UUID REFERENCES resources(id) ON DELETE SET NULL;`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS is_urgent BOOLEAN DEFAULT FALSE;`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS is_long_term BOOLEAN DEFAULT FALSE;`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS is_tech_request BOOLEAN DEFAULT FALSE;`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS is_osr_open BOOLEAN DEFAULT FALSE;`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS osr_number VARCHAR(50);`;
+    await db.sql`ALTER TABLE resource_requests ADD COLUMN IF NOT EXISTS version INT DEFAULT 1;`;
     // MIGRATION: horizontal -> function
     await db.sql`CREATE TABLE IF NOT EXISTS interviews ( id UUID PRIMARY KEY, resource_request_id UUID REFERENCES resource_requests(id) ON DELETE SET NULL, candidate_name VARCHAR(255) NOT NULL, candidate_surname VARCHAR(255) NOT NULL, birth_date DATE, function VARCHAR(255), role_id UUID REFERENCES roles(id) ON DELETE SET NULL, cv_summary TEXT, interviewers_ids UUID[], interview_date DATE, feedback VARCHAR(50), notes TEXT, hiring_status VARCHAR(50), entry_date DATE, status VARCHAR(50) NOT NULL, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, version INT DEFAULT 1 );`;
     try {

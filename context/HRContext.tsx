@@ -145,7 +145,7 @@ export const HRProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 method: 'POST', body: JSON.stringify(req)
             });
             setResourceRequests(prev => [...prev, created]);
-        } catch (e) { addToast('Errore durante l\'aggiunta della richiesta risorsa.', 'error'); }
+        } catch (e) { addToast('Errore durante l\'aggiunta della richiesta risorsa.', 'error'); throw e; }
         finally { actionLoading('addResourceRequest', false); }
     }, [addToast, actionLoading]);
 
@@ -157,7 +157,7 @@ export const HRProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 { method: 'PUT', body: JSON.stringify(req) }
             );
             setResourceRequests(prev => prev.map(r => r.id === req.id ? updated : r));
-        } catch (e) { addToast('Errore durante l\'aggiornamento della richiesta risorsa.', 'error'); }
+        } catch (e) { addToast('Errore durante l\'aggiornamento della richiesta risorsa.', 'error'); throw e; }
         finally { actionLoading(`updateResourceRequest-${req.id}`, false); }
     }, [addToast, actionLoading]);
 
