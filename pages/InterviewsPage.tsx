@@ -229,8 +229,12 @@ const InterviewsPage: React.FC = () => {
 
     const closeLinkedRequest = async () => {
         if (!linkedOpenRequest) return;
-        await updateResourceRequest({ ...linkedOpenRequest, status: 'CHIUSA' });
-        addToast(`Richiesta ${linkedOpenRequest.requestCode || ''} chiusa.`, 'success');
+        try {
+            await updateResourceRequest({ ...linkedOpenRequest, status: 'CHIUSA' });
+            addToast(`Richiesta ${linkedOpenRequest.requestCode || ''} chiusa.`, 'success');
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const handleSave = async (e: React.FormEvent) => {

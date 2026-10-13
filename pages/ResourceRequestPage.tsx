@@ -304,8 +304,8 @@ export const ResourceRequestPage: React.FC = () => {
             }
             handleCloseModal();
         } catch (err) {
+            // Il toast di errore è già mostrato dal contesto; il modale resta aperto.
             console.error(err);
-            addToast('Errore durante il salvataggio della richiesta.', 'error');
         }
     };
     
