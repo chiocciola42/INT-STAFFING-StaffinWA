@@ -1,11 +1,8 @@
 
 /**
  * @file services/apiClient.ts
- * @description Client API con intercettore per ambiente di Preview locale.
+ * @description Client API con autenticazione, retry e backoff esponenziale.
  */
-
-import { mockFetch } from './mockHandlers';
-import { INITIAL_MOCK_DATA } from './mockData';
 
 export interface ApiClientOptions {
     retries?: number;
@@ -24,51 +21,9 @@ const resolveAuthHeaders = (strategy: ApiClientOptions['authStrategy'], token: s
 };
 
 /**
- * Rileva se l'applicazione sta girando in un ambiente di Preview o di sviluppo.
- * Esteso per coprire le sandbox di Google AI Studio e Vercel.
- */
-export const isLocalPreview = () => {
-  if (typeof window === 'undefined') return false;
-  
-  const h = window.location.hostname;
-  const p = window.location.port;
-
-  // Se l'host contiene questi termini o ha una porta non standard, siamo in preview
-  return (
-    h === 'localhost' || 
-    h === '127.0.0.1' || 
-    p !== '' && p !== '80' && p !== '443' || 
-    h.includes('webcontainer') || 
-    h.includes('stackblitz') || 
-    h.includes('vercel-preview') ||
-    h.includes('google-ai-studio') ||
-    h.includes('ais-dev-') ||
-    h.includes('ais-pre-') ||
-    h.includes('usercontent.goog') || // Sandbox Google
-    h.includes('googleusercontent.com') ||
-    h.includes('internal') ||
-    !h.includes('.') // Intranet/Local hosts
-  );
-};
-
-/**
  * Funzione fetch potenziata per interagire con le API dell'applicazione.
- * Intercetta TUTTE le chiamate /api in ambiente Preview e le devia al Mock Engine.
  */
 export const apiFetch = async <T = unknown>(url: string, options: RequestInit = {}, clientOptions: ApiClientOptions = {}): Promise<T> => {
-    // LOGICA DI INTERCETTAZIONE MOCK (PREVIEW)
-    if (isLocalPreview()) {
-        try {
-            return await mockFetch(url, options) as T;
-        } catch (e) {
-            // Fallback d'emergenza: restituiamo dati coerenti per non bloccare l'UI
-            if (url.includes('/api/data')) return INITIAL_MOCK_DATA as unknown as T;
-            if (url.includes('notifications') || Array.isArray(INITIAL_MOCK_DATA)) return [] as unknown as T;
-            return {} as T;
-        }
-    }
-
-    // LOGICA API REALE (PRODUZIONE)
     const {
         retries = 3,
         retryDelayMs = 500,
